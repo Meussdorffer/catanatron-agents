@@ -28,6 +28,7 @@ DETERMINISTIC_ACTIONS = set(
         ActionType.BUILD_ROAD,
         ActionType.BUILD_CITY,
         ActionType.PLAY_KNIGHT_CARD,
+        ActionType.COFFEE_ROBBER,  # coffee rules: chosen resource from bank
         ActionType.PLAY_YEAR_OF_PLENTY,
         ActionType.PLAY_ROAD_BUILDING,
         ActionType.MARITIME_TRADE,
