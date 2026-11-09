@@ -95,6 +95,7 @@ class Game:
         seed: int | None = None,
         discard_limit: int = 7,
         friendly_robber: bool = False,
+        coffee_rules: bool = False,
         vps_to_win: int = 10,
         catan_map: CatanMap | None = None,
         number_placement: NumberPlacement = "official_spiral",
@@ -106,6 +107,9 @@ class Game:
             players (List[Player]): list of players, should be at most 4.
             seed (int, optional): Random seed to use (for reproducing games). Defaults to None.
             discard_limit (int, optional): Discard limit to use. Defaults to 7.
+            coffee_rules (bool, optional): First 7 rolled does nothing; on later
+                rolled 7s the roller may instead move the robber to the desert and
+                take 1 resource of choice from the bank. Defaults to False.
             vps_to_win (int, optional): Victory Points needed to win. Defaults to 10.
             catan_map (CatanMap, optional): Map to use. Defaults to None.
             initialize (bool, optional): Whether to initialize. Defaults to True.
@@ -122,6 +126,7 @@ class Game:
                 catan_map,
                 discard_limit=discard_limit,
                 friendly_robber=friendly_robber,
+                coffee_rules=coffee_rules,
                 number_placement=number_placement,
             )
             self.playable_actions = generate_playable_actions(self.state)

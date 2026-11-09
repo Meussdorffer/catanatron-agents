@@ -96,6 +96,8 @@ def apply_action(
         action_record = apply_discard(state, action)
     elif action.action_type == ActionType.MOVE_ROBBER:
         action_record = apply_move_robber(state, action, action_record)
+    elif action.action_type == ActionType.COFFEE_ROBBER:
+        action_record = apply_coffee_robber(state, action)
     elif action.action_type == ActionType.PLAY_KNIGHT_CARD:
         action_record = apply_play_knight_card(state, action)
     elif action.action_type == ActionType.PLAY_YEAR_OF_PLENTY:
@@ -264,7 +266,12 @@ def apply_roll(state: State, action: Action, action_record=None):
     number = dices[0] + dices[1]
     action = Action(action.color, action.action_type, dices)
 
-    if number == 7:
+    if number == 7 and state.coffee_rules and not state.seven_rolled:
+        # Coffee rules: the first 7 of the game does nothing.
+        state.seven_rolled = True
+        state.current_prompt = ActionPrompt.PLAY_TURN
+    elif number == 7:
+        state.seven_rolled = True
         discard_counts = []
         first_discarding_player_index = None
 
@@ -357,6 +364,24 @@ def apply_move_robber(state: State, action: Action, action_record=None):
     state.current_prompt = ActionPrompt.PLAY_TURN
 
     return ActionRecord(action=action, result=robbed_resource)
+
+
+def apply_coffee_robber(state: State, action: Action):
+    coordinate, resource = action.value
+    if not state.coffee_rules or state.current_prompt != ActionPrompt.MOVE_ROBBER:
+        raise ValueError("Coffee robber only allowed under coffee rules when moving robber")
+    if state.board.map.land_tiles[coordinate].resource is not None:
+        raise ValueError("Coffee robber must move robber to a desert")
+    if state.resource_freqdeck[RESOURCES.index(resource)] < 1:
+        raise ValueError(f"Bank has no {resource} left")
+
+    state.board.robber_coordinate = coordinate
+    freqdeck_draw(state.resource_freqdeck, 1, resource)
+    player_deck_replenish(state, action.color, resource)
+
+    # state.current_player_index stays the same
+    state.current_prompt = ActionPrompt.PLAY_TURN
+    return ActionRecord(action=action, result=None)
 
 
 def apply_play_knight_card(state: State, action: Action):

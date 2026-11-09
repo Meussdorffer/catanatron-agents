@@ -35,6 +35,9 @@ def action_from_json(data) -> Action:
         coordinate = tuple(coordinate)
         victim = Color[victim] if victim else None
         action = Action(color, action_type, (coordinate, victim))
+    elif action_type == ActionType.COFFEE_ROBBER:
+        coordinate, resource = data[2]
+        action = Action(color, action_type, (tuple(coordinate), resource))
     elif action_type == ActionType.MARITIME_TRADE:
         value = tuple(data[2])
         action = Action(color, action_type, value)

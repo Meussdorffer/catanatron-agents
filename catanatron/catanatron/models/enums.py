@@ -74,6 +74,9 @@ class ActionType(Enum):
 
     ROLL = "ROLL"  # value is None
     MOVE_ROBBER = "MOVE_ROBBER"  # value is (coordinate, Color|None).
+    # Coffee rules: on a rolled 7 or knight, instead of stealing, move robber to a desert
+    #   and take 1 resource of choice from the bank. value is (coordinate, Resource).
+    COFFEE_ROBBER = "COFFEE_ROBBER"
 
     DISCARD_RESOURCE = "DISCARD_RESOURCE"  # value is Resource
 

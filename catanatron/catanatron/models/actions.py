@@ -206,6 +206,30 @@ def city_possibilities(state, color) -> list[Action]:
 
 
 def robber_possibilities(state, color) -> list[Action]:
+    return _base_robber_possibilities(state, color) + coffee_robber_possibilities(
+        state, color
+    )
+
+
+def coffee_robber_possibilities(state, color) -> list[Action]:
+    """Coffee rules: whenever moving the robber (rolled 7 or knight), may instead
+    move it to a desert (staying is fine) and take any 1 resource the bank has."""
+    if not state.coffee_rules:
+        return []
+    deserts = [
+        coordinate
+        for coordinate, tile in state.board.map.land_tiles.items()
+        if tile.resource is None
+    ]
+    return [
+        Action(color, ActionType.COFFEE_ROBBER, (coordinate, resource))
+        for coordinate in deserts
+        for i, resource in enumerate(RESOURCES)
+        if state.resource_freqdeck[i] > 0
+    ]
+
+
+def _base_robber_possibilities(state, color) -> list[Action]:
     actions = _robber_possibilities_without_friendly_robber(state, color)
     if not state.friendly_robber:
         return actions

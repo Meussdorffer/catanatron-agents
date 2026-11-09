@@ -92,6 +92,7 @@ class State:
         catan_map=None,
         discard_limit=7,
         friendly_robber=False,
+        coffee_rules=False,
         number_placement: NumberPlacement = "official_spiral",
         initialize=True,
     ):
@@ -103,6 +104,8 @@ class State:
             )
             self.discard_limit = discard_limit
             self.friendly_robber = friendly_robber
+            self.coffee_rules = coffee_rules
+            self.seven_rolled = False  # coffee rules: first 7 does nothing
 
             # feature-ready dictionary
             self.player_state = dict()
@@ -162,6 +165,8 @@ class State:
         state_copy.players = self.players
         state_copy.discard_limit = self.discard_limit  # immutable
         state_copy.friendly_robber = self.friendly_robber  # immutable
+        state_copy.coffee_rules = self.coffee_rules  # immutable
+        state_copy.seven_rolled = self.seven_rolled
 
         state_copy.board = self.board.copy()
 
