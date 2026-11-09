@@ -94,7 +94,12 @@ def execute_spectrum(game: Game, action: Action):
             # Nothing to steal
             return execute_deterministic(game, action)
 
-        for card in RESOURCES:
+        # Weight each possible stolen card by how many the victim holds (hands are
+        # trackable by card counting). Previously every resource got 1/5, and cards the
+        # victim lacked became "nothing happened" outcomes, undervaluing steals.
+        for card, count in zip(RESOURCES, opponent_hand):
+            if count == 0:
+                continue
             option_action = Action(
                 action.color,
                 action.action_type,
@@ -102,18 +107,12 @@ def execute_spectrum(game: Game, action: Action):
             )
             option_action_record = ActionRecord(action=option_action, result=card)
             option_game = game.copy()
-            try:
-                option_game.execute(
-                    option_action,
-                    validate_action=False,
-                    action_record=option_action_record,
-                )
-            except Exception:
-                # ignore exceptions, since player might imagine impossible outcomes.
-                # ignoring means the value function of this node will be flattened,
-                # to the one before.
-                pass
-            results.append((option_game, 1 / 5.0))
+            option_game.execute(
+                option_action,
+                validate_action=False,
+                action_record=option_action_record,
+            )
+            results.append((option_game, count / opponent_hand_size))
         return results
     else:
         raise RuntimeError("Unknown ActionType " + str(action.action_type))
@@ -196,9 +195,10 @@ def prune_robber_actions(current_color, game, actions):
 
         return enemy_production - production
 
-    most_impactful_robber_action = max(
-        robber_moves, key=impact
-    )  # most production and variety producing
+    # impact = enemy production - our production after the move, so the most
+    # damaging move minimizes it. (This used max, keeping the move that helped the
+    # enemy most.)
+    most_impactful_robber_action = min(robber_moves, key=impact)
     actions = filter(
         lambda a: a.action_type != ActionType.MOVE_ROBBER
         or a == most_impactful_robber_action,
